@@ -32,5 +32,48 @@ export default async function booksRoutes(app){
         });
         return reply.send(books);
     });
-    //TESTE
+
+    //READ (POR ID)
+    app.get('/books/:id', { schema: { params: idParamSchema } }, async (req, reply) => {
+        const { id } = req.params;
+        const book = await app.prisma.book.findUnique({
+            where: { id: Number(id) }
+        });
+
+        if (!book) {
+            return reply.code(404).send({ message: 'Book not found' });
+        }
+
+        return reply.send(book);
+    });
+
+    //UPDATE
+    app.put('/books/:id', { schema: { params: idParamSchema, body: bookBodySchema } }, async (req, reply) => {
+        const { id } = req.params;
+        const { title, author } = req.body;
+
+        try {
+            const book = await app.prisma.book.update({
+                where: { id: Number(id) },
+                data: { title, author }
+            });
+            return reply.send(book);
+        } catch (error) {
+            return reply.code(404).send({ message: 'Book not found' });
+        }
+    });
+
+    //DELETE
+    app.delete('/books/:id', { schema: { params: idParamSchema } }, async (req, reply) => {
+        const { id } = req.params;
+
+        try {
+            await app.prisma.book.delete({
+                where: { id: Number(id) }
+            });
+            return reply.code(204).send();
+        } catch (error) {
+            return reply.code(404).send({ message: 'Book not found' });
+        }
+    });
 }

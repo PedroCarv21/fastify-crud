@@ -32,4 +32,5 @@ export default async function booksRoutes(app){
         });
         return reply.send(books);
     });
+    //TESTE
 }
